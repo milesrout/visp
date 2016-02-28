@@ -1,0 +1,51 @@
+import unittest
+import visp
+
+class TestRead(unittest.TestCase):
+    def test_integer(self):
+        self.assertEqual(
+            visp.read("1"),
+            1)
+
+    def test_symbol(self):
+        self.assertEqual(
+            visp.read("hello!").name,
+            'hello!')
+
+    def test_nil(self):
+        self.assertEqual(
+            visp.read("()"),
+            visp.nil)
+
+    def test_dotted(self):
+        self.assertEqual(
+            visp.read("(1 . hello)").cdr.name,
+            'hello')
+        self.assertEqual(
+            visp.read("(1 . hello)").car,
+            1)
+
+    def test_nested(self):
+        self.assertEqual(
+            visp.read("((1 . 2) . (3 . 4)"),
+            visp.cons(visp.cons(1, 2), visp.cons(3, 4)))
+
+    def test_list_of_pairs(self):
+        self.assertEqual(
+            visp.read("((1 . 2) (3 . 4) (5 . 6)"),
+            visp.cons(visp.cons(1, 2), 
+                visp.cons(visp.cons(3, 4),
+                    visp.cons(visp.cons(5, 6), visp.nil))))
+
+    def test_integers(self):
+        self.assertEqual(
+            visp.read("(1 2 3)"),
+            visp.cons(1, visp.cons(2, visp.cons(3, visp.nil))))
+
+    def test_integers_dot_nil(self):
+        self.assertEqual(
+            visp.read("(1 2 3 . ())"),
+            visp.cons(1, visp.cons(2, visp.cons(3, visp.nil))))
+
+if __name__ == '__main__':
+    unittest.main()
