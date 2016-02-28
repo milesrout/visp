@@ -1,13 +1,5 @@
 from collections import namedtuple
 
-#class Applicative:
-    #def __init__(self, inner):
-        #self.inner = inner
-
-#class Operative:
-    #def __init__(self, ptree, ebind, body):
-        #self.ptree = ptree
-        #self.ebind = ebind
 Applicative = namedtuple('Applicative', 'inner')
 Operative = namedtuple('Operative', 'ptree ebind body env')
 
