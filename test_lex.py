@@ -14,10 +14,10 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(
             next(visp.lex(')')).type,
             'rparen')
-    def test_period(self):
+    def test_dot(self):
         self.assertEqual(
             next(visp.lex('.')).type,
-            'period')
+            'dot')
     def test_number(self):
         self.assertEqual(
             next(visp.lex('12345')).type,

@@ -56,7 +56,7 @@ class Reader:
         while True:
             if self.lookahead().type == 'rparen':
                 return make_list(expressions)
-            if self.lookahead().type == 'period':
+            if self.lookahead().type == 'dot':
                 self.next_token()
                 return make_dotted(expressions, self.expression())
             expressions.append(self.expression())

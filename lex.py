@@ -13,7 +13,7 @@ patterns = {
     'symbol': '[A-Za-z_\\$\\?\\+\\*!%@/~-][\\w\\$\\?\\+\\*!%@/~-]*',
     'number': '[0-9]+',
     'wspace': '\\s',
-    'period': '\\.',
+    'dot': '\\.',
 }
 
 pattern = re.compile('|'.join(
