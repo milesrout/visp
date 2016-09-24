@@ -7,12 +7,16 @@ from collections import namedtuple
 def make_regex(name, pattern):
     return '(?P<{name}>{pattern})'.format(name=name, pattern=pattern)
 
+nonalnum_symbols = re.escape("$?+*!%@/~-")
+identifier_regex = "[A-Za-z{0}][\\w{0}]*".format(nonalnum_symbols)
+
 patterns = {
     'lparen': '\\(',
     'rparen': '\\)',
-    'symbol': '[A-Za-z_\\$\\?\\+\\*!%@/~-][\\w\\$\\?\\+\\*!%@/~-]*',
+    'symbol': identifier_regex,
     'number': '[0-9]+',
     'wspace': '\\s',
+    'hashed': '#' + identifier_regex,
     'dot': '\\.',
 }
 
