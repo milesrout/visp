@@ -15,10 +15,9 @@ def to_cons(iterator):
     return make_list(list(iterator))
 
 def from_cons(cons):
-    if cons.cdr == nil:
-        yield cons.car
-    else:
-        yield from itertools.chain((cons.car,), from_cons(cons.cdr))
+    yield cons.car
+    if cons.cdr is not nil:
+        yield from from_cons(cons.cdr)
 
 def evaluate(obj, env):
     if isinstance(obj, Number):
@@ -38,13 +37,18 @@ def match(ptree, operands):
         return BaseEnv({ ptree.name: operands })
     if isinstance(ptree, Cons):
         return match(ptree.car, operands.car) + match(ptree.cdr, operands.cdr)
-    raise NotImplementedError('Matching against tree not supported: {!r}'.format(ptree))
+    raise NotImplementedError(
+            'Matching against tree not supported: {!r}'.format(ptree))
 
 def apply(combiner, operands, env):
     if isinstance(combiner, Applicative):
-        return apply(combiner.inner, to_cons(evaluate(obj, env) for obj in from_cons(operands)), env)
+        args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
+        return apply(combiner.inner, args, env)
     if isinstance(combiner, Operative):
-        return evaluate(combiner.body, match(combiner.ptree, operands) + BaseEnv({ combiner.ebind.name: env }) + combiner.env)
+        ptree_bindings = match(combiner.ptree, operands)
+        base_bindings = BaseEnv({ combiner.ebind.name: env })
+        bindings = ptree_bindings + base_bindings + combiner.env
+        return evaluate(combiner.body, bindings)
     if isinstance(combiner, Vau):
         formal_tree, env_bind, body = tuple(from_cons(operands))
         return Operative(ptree=formal_tree, ebind=env_bind, body=body, env=env)

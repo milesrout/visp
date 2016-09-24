@@ -16,7 +16,8 @@ patterns = {
     'period': '\\.',
 }
 
-pattern = re.compile('|'.join(itertools.starmap(make_regex, patterns.items())))
+pattern = re.compile('|'.join(
+    itertools.starmap(make_regex, patterns.items())))
 
 Token = namedtuple('Token', 'type string')
 
