@@ -47,5 +47,10 @@ class TestRead(unittest.TestCase):
             visp.read("(1 2 3 . ())"),
             visp.cons(1, visp.cons(2, visp.cons(3, visp.nil))))
 
+    def test_quote(self):
+        self.assertEqual(
+            visp.read("'(1 2 3)"),
+            visp.read("(quote (1 2 3))"))
+
 if __name__ == '__main__':
     unittest.main()

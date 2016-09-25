@@ -35,6 +35,10 @@ class Reader:
             return self.symbol()
         elif tok.type == 'number':
             return self.number()
+        elif tok.type == 'quote':
+            self.next_token()
+            expr = self.expression()
+            return make_list((Symbol('quote'), expr))
         else:
             raise RuntimeError('unexpected token {!r}'.format(self.get_token()))
 

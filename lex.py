@@ -17,7 +17,8 @@ patterns = {
     'number': '[0-9]+',
     'wspace': '\\s',
     'hashed': '#' + identifier_regex,
-    'dot': '\\.',
+    'dot':    '\\.',
+    'quote':  '\'',
 }
 
 pattern = re.compile('|'.join(

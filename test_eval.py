@@ -22,5 +22,12 @@ class TestEval(unittest.TestCase):
             ), self.base_env),
             3)
 
+    def test_quote(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """'(1 2 3)"""
+            ), self.base_env).car,
+            1)
+
 if __name__ == '__main__':
     unittest.main()

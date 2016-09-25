@@ -1,4 +1,4 @@
-class Env:
+class BaseEnv:
     def __init__(self, bindings=None):
         if bindings is None:
             self.bindings = {}
@@ -13,7 +13,7 @@ class Env:
             new_bindings[k] = v
         for k, v in self.bindings.items():
             new_bindings[k] = v
-        return Env(new_bindings)
+        return BaseEnv(new_bindings)
 
     def __radd__(self, other):
         return self + other

@@ -3,11 +3,11 @@ import itertools
 from datatypes import cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative
 from lex import lex
 from reader import read
-from env import Env as BaseEnv
+from env import BaseEnv
 
 class Env(BaseEnv):
     def __init__(self, bindings=None):
-        self.bindings = { '$vau': Vau(), '+': Plus() }
+        self.bindings = { '$vau': Vau(), '+': Plus(), 'quote': Quote() }
         if bindings is not None:
             self.bindings.update(bindings)
 
@@ -56,7 +56,10 @@ def apply(combiner, operands, env):
         l = evaluate(operands.car, env)
         r = evaluate(operands.cdr.car, env)
         return Number(l.value + r.value)
+    if isinstance(combiner, Quote):
+        return operands.car
     raise RuntimeError('Unrecognised combiner {!r}'.format(combiner))
 
 class Vau: pass
 class Plus: pass
+class Quote: pass

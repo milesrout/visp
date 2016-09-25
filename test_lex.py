@@ -26,6 +26,10 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(
             next(visp.lex('foo%$!')).type,
             'symbol')
+    def test_quote(self):
+        self.assertEqual(
+            next(visp.lex('\'')).type,
+            'quote')
 
 if __name__ == '__main__':
     unittest.main()
