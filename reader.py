@@ -1,4 +1,4 @@
-from datatypes import cons, nil, Number, Symbol, List
+from datatypes import cons, nil, Number, Symbol
 from lex import lex
 
 def read(string):

@@ -1,6 +1,6 @@
 import itertools
 
-from datatypes import cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative
+from datatypes import cons, from_cons, to_cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative
 from lex import lex
 from reader import read
 from env import BaseEnv
@@ -11,14 +11,10 @@ class Env(BaseEnv):
         if bindings is not None:
             self.bindings.update(bindings)
 
-def evaluate(obj, env):
-    if isinstance(obj, Number):
-        return obj
-    if isinstance(obj, Symbol):
-        return env.lookup(obj.name)
-    if isinstance(obj, Cons):
-        return apply(evaluate(obj.car, env), obj.cdr, env)
-    return obj.eval(env)
+def evaluate(form, env):
+    if isinstance(form, Cons):
+        return apply(evaluate(form.car, env), form.cdr, env)
+    return form.eval(env)
 
 def match(ptree, operands):
     if ptree == nil:
