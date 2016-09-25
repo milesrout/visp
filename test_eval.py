@@ -32,6 +32,17 @@ class TestEval(unittest.TestCase):
             ), self.base_env),
             6)
 
+    def test_closure(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """((lambda (x)
+                      ((lambda (y)
+                         (+ x y))
+                        (+ 1 2)))
+                     1)"""
+            ), self.base_env),
+            4)
+
     def test_quote(self):
         self.assertEqual(
             visp.evaluate(visp.read(
