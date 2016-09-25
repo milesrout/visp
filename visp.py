@@ -57,7 +57,10 @@ def apply(combiner, operands, env):
     if isinstance(combiner, Plus):
         l = evaluate(operands.car, env)
         r = evaluate(operands.cdr.car, env)
-        return type(l)(l.value + r.value)
+        if isinstance(l, Number) and isinstance(r, Number):
+            return Number(l.value + r.value)
+        else:
+            return Inexact(l.value + r.value)
     if isinstance(combiner, Quote):
         return operands.car
     if isinstance(combiner, ExactNum):

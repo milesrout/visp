@@ -1,6 +1,8 @@
 import unittest
 import visp
 
+from datatypes import Inexact, Number as Exact
+
 class TestEval(unittest.TestCase):
     def setUp(self):
         self.base_env = visp.Env({
@@ -50,12 +52,18 @@ class TestEval(unittest.TestCase):
             ), self.base_env).car,
             1)
 
-    def test_exact(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(+ #e100 #e100)"""
-            ), self.base_env),
-            200)
+    def test_viral_inexactness(self):
+        test_cases = {
+            "(+ #e100 #e100)": Exact,
+            "(+ #e100 #i100)": Inexact,
+            "(+ #i100 #e100)": Inexact,
+            "(+ #i100 #i100)": Inexact,
+        }
+
+        for input_string, expected_type in test_cases.items():
+            self.assertTrue(isinstance(
+                visp.evaluate(visp.read(input_string), self.base_env),
+                expected_type))
 
     def test_inexact(self):
         self.assertEqual(
