@@ -11,17 +11,9 @@ class Env(BaseEnv):
         if bindings is not None:
             self.bindings.update(bindings)
 
-def to_cons(iterator):
-    return make_list(list(iterator))
-
-def from_cons(cons):
-    yield cons.car
-    if cons.cdr is not nil:
-        yield from from_cons(cons.cdr)
-
 def evaluate(obj, env):
     if isinstance(obj, Number):
-        return obj.value
+        return obj
     if isinstance(obj, Symbol):
         return env.lookup(obj.name)
     if isinstance(obj, Cons):

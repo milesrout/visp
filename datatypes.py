@@ -13,6 +13,8 @@ class Symbol:
             return super().__eq__(other)
     def __repr__(self):
         return 'Symbol({!r})'.format(self.name)
+    def __str__(self):
+        return self.name
 
 class Number:
     def __init__(self, string):
@@ -26,6 +28,8 @@ class Number:
             return super().__eq__(other)
     def __repr__(self):
         return 'Number({!r})'.format(self.value)
+    def __str__(self):
+        return str(self.value)
 
 class List:
     def __init__(self, exprs):
@@ -33,6 +37,15 @@ class List:
 
 def cons(car, cdr):
     return Cons(car, cdr)
+
+def to_cons(iterator):
+    return make_list(list(iterator))
+
+def from_cons(cons):
+    yield cons.car
+    if cons.cdr is not nil:
+        yield from from_cons(cons.cdr)
+
 
 class BaseCons: pass
 
@@ -46,8 +59,8 @@ class Cons(BaseCons):
             self.car, self.cdr)
 
     def __str__(self):
-        return '({} . {})'.format(
-            self.car, self.cdr)
+        return '({})'.format(
+            ' '.join(map(str, from_cons(self))))
 
     def __eq__(self, other):
         if isinstance(other, Cons):
