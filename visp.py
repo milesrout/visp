@@ -45,15 +45,15 @@ def apply(combiner, operands, env):
         bindings = ptree_bindings + base_bindings + combiner.env
         return evaluate(combiner.body, bindings)
     if isinstance(combiner, Vau):
-        formal_tree, env_bind, body = tuple(from_cons(operands))
-        return Operative(ptree=formal_tree, ebind=env_bind, body=body, env=env)
+        ptree, ebind, body = tuple(from_cons(operands))
+        return Operative(ptree=ptree, ebind=ebind, body=body, env=env)
     if isinstance(combiner, Procedure):
         args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
         bindings = match(combiner.ptree, args) + combiner.env
         return evaluate(combiner.body, bindings)
     if isinstance(combiner, Lambda):
-        formal_tree, body = tuple(from_cons(operands))
-        return Procedure(ptree=formal_tree, body=body, env=env)
+        ptree, body = tuple(from_cons(operands))
+        return Procedure(ptree=ptree, body=body, env=env)
     if isinstance(combiner, Plus):
         l = evaluate(operands.car, env)
         r = evaluate(operands.cdr.car, env)
