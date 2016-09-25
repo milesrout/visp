@@ -1,6 +1,6 @@
 import itertools
-
-from datatypes import cons, from_cons, to_cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative, Procedure, Inexact
+from datatypes import (cons, from_cons, to_cons, ignore, nil,
+        Cons, Exact, Inexact, Symbol, Applicative, Operative, Procedure)
 from lex import lex
 from reader import read
 from env import BaseEnv
@@ -57,8 +57,8 @@ def apply(combiner, operands, env):
     if isinstance(combiner, Plus):
         l = evaluate(operands.car, env)
         r = evaluate(operands.cdr.car, env)
-        if isinstance(l, Number) and isinstance(r, Number):
-            return Number(l.value + r.value)
+        if isinstance(l, Exact) and isinstance(r, Exact):
+            return Exact(l.value + r.value)
         else:
             return Inexact(l.value + r.value)
     if isinstance(combiner, Quote):

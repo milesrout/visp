@@ -1,12 +1,12 @@
 import unittest
 import visp
 
-from datatypes import Inexact, Number as Exact
+from datatypes import Inexact, Exact
 
 class TestEval(unittest.TestCase):
     def setUp(self):
         self.base_env = visp.Env({
-            'a': visp.Number(2)
+            'a': visp.Exact(2)
         })
     def test_number(self):
         self.assertEqual(

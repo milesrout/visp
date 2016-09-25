@@ -44,18 +44,18 @@ class Inexact:
         else:
             return super().__eq__(other)
 
-class Number:
+class Exact:
     def __init__(self, string):
         self.value = int(string)
     def __eq__(self, other):
         if isinstance(other, int):
             return self.value == other
-        elif isinstance(other, Number):
+        elif isinstance(other, Exact):
             return self.value == other.value
         else:
             return super().__eq__(other)
     def __repr__(self):
-        return 'Number({!r})'.format(self.value)
+        return 'Exact({!r})'.format(self.value)
     def __str__(self):
         return str(self.value)
     def eval(self, env):

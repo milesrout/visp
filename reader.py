@@ -1,4 +1,4 @@
-from datatypes import cons, nil, Number, Symbol, String, make_list, make_dotted
+from datatypes import cons, nil, Exact, Symbol, String, make_list, make_dotted
 from lex import lex
 
 def read(string):
@@ -86,7 +86,7 @@ class Reader:
         return Symbol(self.get_token().string)
 
     def number(self):
-        return Number(self.get_token().string)
+        return Exact(self.get_token().string)
 
     def string(self):
         return String(self.get_token().string)
