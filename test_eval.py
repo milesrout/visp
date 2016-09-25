@@ -17,10 +17,20 @@ class TestEval(unittest.TestCase):
     def test_vau(self):
         self.assertEqual(
             visp.evaluate(visp.read(
-                """(($vau (x y) e
+                """((vau (x y) e
                       (+ x y)) 1 2)"""
             ), self.base_env),
             3)
+
+    def test_lambda(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """((lambda (x y)
+                      (+ x y))
+                     (+ 1 2)
+                     3)"""
+            ), self.base_env),
+            6)
 
     def test_quote(self):
         self.assertEqual(

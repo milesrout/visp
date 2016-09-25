@@ -2,6 +2,7 @@ from collections import namedtuple
 
 Applicative = namedtuple('Applicative', 'inner')
 Operative = namedtuple('Operative', 'ptree ebind body env')
+Procedure = namedtuple('Procedure', 'ptree body env')
 
 class Symbol:
     def __init__(self, name):
@@ -113,3 +114,14 @@ class Ignore:
     pass
 
 ignore = Ignore()
+
+def make_dotted(exprs, final):
+    if len(exprs) == 0:
+        return final
+    if len(exprs) == 1:
+        return cons(exprs[0], final)
+    else:
+        return cons(exprs[0], make_dotted(exprs[1:], final))
+
+def make_list(exprs):
+    return make_dotted(exprs, nil)

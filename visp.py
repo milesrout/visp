@@ -1,6 +1,6 @@
 import itertools
 
-from datatypes import cons, from_cons, to_cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative, Inexact
+from datatypes import cons, from_cons, to_cons, ignore, nil, Cons, Number, Symbol, Applicative, Operative, Procedure, Inexact
 from lex import lex
 from reader import read
 from env import BaseEnv
@@ -8,7 +8,8 @@ from env import BaseEnv
 class Env(BaseEnv):
     def __init__(self, bindings=None):
         self.bindings = {
-            '$vau': Vau(),
+            'vau': Vau(),
+            'lambda': Lambda(),
             '+': Plus(),
             'quote': Quote(),
             'exact-number': ExactNum(),
@@ -46,6 +47,13 @@ def apply(combiner, operands, env):
     if isinstance(combiner, Vau):
         formal_tree, env_bind, body = tuple(from_cons(operands))
         return Operative(ptree=formal_tree, ebind=env_bind, body=body, env=env)
+    if isinstance(combiner, Procedure):
+        args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
+        bindings = match(combiner.ptree, args) + combiner.env
+        return evaluate(combiner.body, bindings)
+    if isinstance(combiner, Lambda):
+        formal_tree, body = tuple(from_cons(operands))
+        return Procedure(ptree=formal_tree, body=body, env=env)
     if isinstance(combiner, Plus):
         l = evaluate(operands.car, env)
         r = evaluate(operands.cdr.car, env)
@@ -59,6 +67,7 @@ def apply(combiner, operands, env):
     raise RuntimeError('Unrecognised combiner {!r}'.format(combiner))
 
 class Vau: pass
+class Lambda: pass
 class Plus: pass
 class Quote: pass
 class ExactNum: pass

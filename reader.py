@@ -1,4 +1,4 @@
-from datatypes import cons, nil, Number, Symbol, String
+from datatypes import cons, nil, Number, Symbol, String, make_list, make_dotted
 from lex import lex
 
 def read(string):
@@ -102,14 +102,3 @@ class Reader:
         return make_list((
             Symbol('inexact-number'),
             self.expression()))
-
-def make_dotted(exprs, final):
-    if len(exprs) == 0:
-        return final
-    if len(exprs) == 1:
-        return cons(exprs[0], final)
-    else:
-        return cons(exprs[0], make_dotted(exprs[1:], final))
-
-def make_list(exprs):
-    return make_dotted(exprs, nil)
