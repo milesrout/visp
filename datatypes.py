@@ -1,7 +1,5 @@
 from collections import namedtuple
 
-Applicative = namedtuple('Applicative', 'inner')
-Operative = namedtuple('Operative', 'ptree ebind body env')
 Procedure = namedtuple('Procedure', 'ptree body env')
 
 class Symbol:

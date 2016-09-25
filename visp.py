@@ -1,6 +1,6 @@
 import itertools
 from datatypes import (cons, from_cons, to_cons, ignore, nil,
-        Cons, Exact, Inexact, Symbol, Applicative, Operative, Procedure)
+        Cons, Exact, Inexact, Symbol, Procedure)
 from lex import lex
 from reader import read
 from env import BaseEnv
@@ -8,7 +8,6 @@ from env import BaseEnv
 class Env(BaseEnv):
     def __init__(self, bindings=None):
         self.bindings = {
-            'vau': Vau(),
             'lambda': Lambda(),
             '+': Plus(),
             'quote': Quote(),
@@ -23,30 +22,17 @@ def evaluate(form, env):
         return apply(evaluate(form.car, env), form.cdr, env)
     return form.eval(env)
 
-def match(ptree, operands):
-    if ptree == nil:
-        return BaseEnv()
-    if ptree == ignore:
+def match(ptree, args):
+    if ptree == nil or ptree == ignore:
         return BaseEnv()
     if isinstance(ptree, Symbol):
-        return BaseEnv({ ptree.name: operands })
+        return BaseEnv({ ptree.name: args })
     if isinstance(ptree, Cons):
-        return match(ptree.car, operands.car) + match(ptree.cdr, operands.cdr)
+        return match(ptree.car, args.car) + match(ptree.cdr, args.cdr)
     raise NotImplementedError(
             'Matching against tree not supported: {!r}'.format(ptree))
 
 def apply(combiner, operands, env):
-    if isinstance(combiner, Applicative):
-        args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
-        return apply(combiner.inner, args, env)
-    if isinstance(combiner, Operative):
-        ptree_bindings = match(combiner.ptree, operands)
-        base_bindings = BaseEnv({ combiner.ebind.name: env })
-        bindings = ptree_bindings + base_bindings + combiner.env
-        return evaluate(combiner.body, bindings)
-    if isinstance(combiner, Vau):
-        ptree, ebind, body = tuple(from_cons(operands))
-        return Operative(ptree=ptree, ebind=ebind, body=body, env=env)
     if isinstance(combiner, Procedure):
         args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
         bindings = match(combiner.ptree, args) + combiner.env
@@ -69,7 +55,6 @@ def apply(combiner, operands, env):
         return Inexact(operands.car.value)
     raise RuntimeError('Unrecognised combiner {!r}'.format(combiner))
 
-class Vau: pass
 class Lambda: pass
 class Plus: pass
 class Quote: pass
