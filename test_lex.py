@@ -26,10 +26,25 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(
             next(visp.lex('foo%$!')).type,
             'symbol')
+    def test_hashsym1(self):
+        self.assertEqual(
+            next(visp.lex('#e')).type,
+            'hashsym')
+    def test_hashsym3(self):
+        self.assertEqual(
+            next(visp.lex('#hello')).type,
+            'hashsym')
     def test_quote(self):
         self.assertEqual(
             next(visp.lex('\'')).type,
             'quote')
+    def test_empty_string(self):
+        self.assertEqual(
+            next(visp.lex('""')).type,
+            'string')
+        self.assertEqual(
+            next(visp.lex('""')).string,
+            '')
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,4 @@
-from datatypes import cons, nil, Number, Symbol
+from datatypes import cons, nil, Number, Symbol, String
 from lex import lex
 
 def read(string):
@@ -9,6 +9,10 @@ class Reader:
     def __init__(self, string):
         self.tokens = lex(string)
         self.current_token = next(self.tokens)
+        self.reader_macros = {
+            'e': self.rm_exact,
+            'i': self.rm_inexact,
+        }
 
     def get_token(self):
         """Advance the token stream and return the popped-off token."""
@@ -39,8 +43,21 @@ class Reader:
             self.next_token()
             expr = self.expression()
             return make_list((Symbol('quote'), expr))
+        elif tok.type == 'hashsym':
+            return self.reader_macro()
+        elif tok.type == 'string':
+            return self.string()
         else:
             raise RuntimeError('unexpected token {!r}'.format(self.get_token()))
+
+    def reader_macro(self):
+        def raise_error():
+            raise RuntimeError('unexpected reader macro {!r}'.format(self.get_token()))
+        char = self.reader_macro_char(self.lookahead())
+        return self.reader_macros.get(char, raise_error)()
+
+    def reader_macro_char(self, tok):
+        return tok.string[1]
 
     def require(self, tok_type):
         token = self.get_token()
@@ -70,6 +87,21 @@ class Reader:
 
     def number(self):
         return Number(self.get_token().string)
+
+    def string(self):
+        return String(self.get_token().string)
+
+    def rm_exact(self):
+        self.next_token()
+        return make_list((
+            Symbol('exact-number'),
+            self.expression()))
+
+    def rm_inexact(self):
+        self.next_token()
+        return make_list((
+            Symbol('inexact-number'),
+            self.expression()))
 
 def make_dotted(exprs, final):
     if len(exprs) == 0:

@@ -18,6 +18,31 @@ class Symbol:
     def eval(self, env):
         return env.lookup(self.name)
 
+class String:
+    def __init__(self, string):
+        self.string = string
+    def __eq__(self, other):
+        if isinstance(other, String):
+            return self.string == other.string
+        return False
+    def __repr__(self):
+        return 'String({!r})'.format(self.string)
+    def __str__(self):
+        return '"{}"'.format(self.string)
+    def eval(self, env):
+        return self
+
+class Inexact:
+    def __init__(self, string):
+        self.value = float(string)
+    def __eq__(self, other):
+        if isinstance(other, float):
+            return self.value == other
+        elif isinstance(other, Inexact):
+            return self.value == other.value
+        else:
+            return super().__eq__(other)
+
 class Number:
     def __init__(self, string):
         self.value = int(string)

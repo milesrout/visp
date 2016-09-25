@@ -29,5 +29,19 @@ class TestEval(unittest.TestCase):
             ), self.base_env).car,
             1)
 
+    def test_exact(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """(+ #e100 #e100)"""
+            ), self.base_env),
+            200)
+
+    def test_inexact(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """(+ #i100 #i100)"""
+            ), self.base_env),
+            200.0)
+
 if __name__ == '__main__':
     unittest.main()

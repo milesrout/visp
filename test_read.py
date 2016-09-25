@@ -52,5 +52,15 @@ class TestRead(unittest.TestCase):
             visp.read("'(1 2 3)"),
             visp.read("(quote (1 2 3))"))
 
+    def test_exact(self):
+        self.assertEqual(
+            visp.read("#e100"),
+            visp.read('(exact-number 100)'))
+
+    def test_inexact(self):
+        self.assertEqual(
+            visp.read("#i100"),
+            visp.read('(inexact-number 100)'))
+
 if __name__ == '__main__':
     unittest.main()
