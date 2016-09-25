@@ -66,6 +66,8 @@ def to_cons(iterator):
     return make_list(list(iterator))
 
 def from_cons(cons):
+    if cons == nil:
+        return
     yield cons.car
     if cons.cdr is not nil:
         yield from from_cons(cons.cdr)
