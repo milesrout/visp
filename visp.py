@@ -1,4 +1,5 @@
 import itertools
+import operator
 from datatypes import (cons, from_cons, to_cons, ignore, nil,
         Cons, Exact, Inexact, Symbol)
 from lex import lex
@@ -19,6 +20,8 @@ class Env(BaseEnv):
             'list': primList,
             '+': primPlus,
             '-': primMinus,
+            '*': primTimes,
+            '/': primDivide,
         }
         if bindings is not None:
             self.bindings.update(bindings)
@@ -88,21 +91,23 @@ def syntaxLet(operands, env):
     bindings = match_let(ptrees, args_lists)
     return evaluate(body, bindings + env)
 
-def primPlus(operands, env):
+def primArithmetic(operands, env, arith):
     l = evaluate(operands.car, env)
     r = evaluate(operands.cdr.car, env)
+    result = arith(l.value, r.value)
     if isinstance(l, Exact) and isinstance(r, Exact):
-        return Exact(l.value + r.value)
+        return Exact(result)
     else:
-        return Inexact(l.value + r.value)
+        return Inexact(result)
 
+def primPlus(operands, env):
+    return primArithmetic(operands, env, operator.add)
 def primMinus(operands, env):
-    l = evaluate(operands.car, env)
-    r = evaluate(operands.cdr.car, env)
-    if isinstance(l, Exact) and isinstance(r, Exact):
-        return Exact(l.value - r.value)
-    else:
-        return Inexact(l.value - r.value)
+    return primArithmetic(operands, env, operator.sub)
+def primTimes(operands, env):
+    return primArithmetic(operands, env, operator.mul)
+def primDivide(operands, env):
+    return primArithmetic(operands, env, operator.div)
 
 def primList(operands, env):
     return to_cons(evaluate(form, env) for form in from_cons(operands))
