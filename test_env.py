@@ -2,7 +2,7 @@ import unittest
 import visp
 
 class TestEnv(unittest.TestCase):
-	pass
+    pass
 
 if __name__ == '__main__':
     unittest.main()
