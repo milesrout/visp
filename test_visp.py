@@ -1,12 +1,11 @@
 import unittest
+import visp
 
-from test_cons import *
-from test_lex import *
-from test_read import *
-from test_eval import *
-from test_env import *
-from test_proc import *
-from test_let import *
+class TestCase(unittest.TestCase):
+    def setUp(self):
+        self.base_env = visp.Env()
 
-if __name__ == '__main__':
-    unittest.main()
+    def assertEvalEqual(self, actual, expected):
+        self.assertEqual(
+            visp.evaluate(visp.read(actual), self.base_env),
+            visp.evaluate(visp.read(expected), self.base_env))

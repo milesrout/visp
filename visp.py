@@ -9,27 +9,35 @@ from util import accumulate, constructor
 
 class Env(BaseEnv):
     def __init__(self, bindings=None):
-        self.bindings = {
+        super().__init__({
             # syntactic forms
             'let': syntaxLet,
             'lambda': syntaxLambda,
             'quote': syntaxQuote,
             'exact-number': syntaxExact,
             'inexact-number': syntaxInexact,
+            'set!': syntaxSetBang,
             # primitive functions
             'list': primList,
             '+': primPlus,
             '-': primMinus,
             '*': primTimes,
             '/': primDivide,
-        }
+        })
         if bindings is not None:
-            self.bindings.update(bindings)
+            for k, v in bindings.items():
+                self.add(k, v)
 
 def evaluate(form, env):
     if isinstance(form, Cons):
         return apply(evaluate(form.car, env), form.cdr, env)
     return form.eval(env)
+
+def evaluate_seq(body, env):
+    ret = None
+    for form in from_cons(body):
+        ret = evaluate(form, env)
+    return ret
 
 @accumulate(lambda bs: sum(bs, BaseEnv()))
 def match_let(ptrees, args_lists):
@@ -68,10 +76,15 @@ class Procedure:
     def apply(self, operands, env):
         args = to_cons(evaluate(form, env) for form in from_cons(operands))
         bindings = match(self.ptree, args) + self.env
-        return evaluate(self.body, bindings)
+        return evaluate_seq(self.body, bindings)
+
+def syntaxSetBang(operands, env):
+    var, form = tuple(from_cons(operands))
+    var.set(env, evaluate(form, env))
+    return nil
 
 def syntaxLambda(operands, env):
-    ptree, body = tuple(from_cons(operands))
+    ptree, body = operands.car, operands.cdr
     return Procedure(ptree, body, env).apply
 
 def syntaxQuote(operands, env):
@@ -84,12 +97,13 @@ def syntaxInexact(operands, env):
     return Inexact(operands.car.value)
 
 def syntaxLet(operands, env):
-    binding_pairs, body = tuple(from_cons(operands))
+    binding_pairs = operands.car
+    body = operands.cdr
     ptrees = map(car, from_cons(binding_pairs))
     forms = map(cadr, from_cons(binding_pairs))
     args_lists = [evaluate(form, env) for form in forms]
     bindings = match_let(ptrees, args_lists)
-    return evaluate(body, bindings + env)
+    return evaluate_seq(body, bindings + env)
 
 def primArithmetic(operands, env, arith):
     l = evaluate(operands.car, env)

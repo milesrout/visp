@@ -1,63 +1,54 @@
 import unittest
-import visp
+import test_visp
 
-class TestLet(unittest.TestCase):
-    def setUp(self):
-        self.base_env = visp.Env()
-
+class TestLet(test_visp.TestCase):
     def test_single_let(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(let ((x 1) (y 2))
-                     (+ x y))"""),
-                self.base_env),
-            3)
+        self.assertEvalEqual(
+            """(let ((x 1) (y 2))
+                 (+ x y))""",
+            "3")
 
     def test_nested_let(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(let ((x 2))
-                     (let ((y 3))
-                       (+ x y)))"""),
-                self.base_env),
-            5)
+        self.assertEvalEqual(
+            """(let ((x 2))
+                 (let ((y 3))
+                   (+ x y)))""",
+            "5")
 
     def test_shadow_let(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(let ((x 2))
-                     (let ((x 3))
-                       (+ x x)))"""),
-                self.base_env),
-            6)
+        self.assertEvalEqual(
+            """(let ((x 2))
+                 (let ((x 3))
+                   (+ x x)))""",
+            "6")
 
     def test_let_lambda(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(let ((f (lambda (x)
-                              (let ((succ (lambda (x) (+ x 1)))
-                                    (pred (lambda (x) (- x 1))))
-                                (list (pred x) x (succ x))))))
-                     (f 2))"""),
-                self.base_env),
-            visp.evaluate(visp.read(
-                """'(1 2 3)"""
-            ), self.base_env))
+        self.assertEvalEqual(
+            """(let ((f (lambda (x)
+                          (let ((succ (lambda (x) (+ x 1)))
+                                (pred (lambda (x) (- x 1))))
+                            (list (pred x) x (succ x))))))
+                 (f 2))""",
+            "'(1 2 3)")
 
     def test_let_over_lambda(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(let ((make-counter (lambda (y)
-                                         (let ((x y))
-                                           (lambda ()
-                                             x)))))
-                     (let ((c1 (make-counter 1))
-                           (c2 (make-counter 2)))
-                       (list (c1) (c1) (c2) (c2))))"""),
-                self.base_env),
-            visp.evaluate(visp.read(
-                """'(1 1 2 2)"""
-            ), self.base_env))
+        self.assertEvalEqual(
+            """(let ((make-counter (lambda (y)
+                                     (let ((x y))
+                                       (lambda ()
+                                         x)))))
+                 (let ((c1 (make-counter 1))
+                       (c2 (make-counter 2)))
+                   (list (c1) (c1) (c2) (c2))))""",
+            """'(1 1 2 2)""")
+
+    def test_let_multiple_stmts_in_body(self):
+        self.assertEvalEqual(
+            """(let ((x 1) (y 2))
+                 (set! x 2)
+                 (set! y 3)
+                 (list x y))""",
+            """(quote (2 3))""")
 
 
 if __name__ == '__main__':

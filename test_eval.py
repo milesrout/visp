@@ -1,29 +1,26 @@
 import unittest
 import visp
+import test_visp
 
 from datatypes import Inexact, Exact
 
-class TestEval(unittest.TestCase):
+class TestEval(test_visp.TestCase):
     def setUp(self):
         self.base_env = visp.Env({
             'a': visp.Exact(2)
         })
 
     def test_number(self):
-        self.assertEqual(
-            visp.evaluate(visp.read("1"), self.base_env),
-            1)
+        self.assertEqual(visp.evaluate(visp.read("1"), self.base_env), 1)
 
     def test_symbol(self):
-        self.assertEqual(
-            visp.evaluate(visp.read("a"), self.base_env),
-            2)
+        self.assertEvalEqual("a", "2")
 
     def test_quote(self):
         self.assertEqual(
             visp.evaluate(visp.read(
-                """'(1 2 3)"""
-            ), self.base_env).car,
+                    "'(1 2 3)"),
+                self.base_env).car,
             1)
 
     def test_viral_inexactness(self):

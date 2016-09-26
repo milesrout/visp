@@ -14,6 +14,8 @@ class Symbol:
         return self.name
     def eval(self, env):
         return env.lookup(self.name)
+    def set(self, env, value):
+        return env.set(self.name, value)
 
 class String:
     def __init__(self, string):
