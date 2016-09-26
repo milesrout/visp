@@ -44,5 +44,21 @@ class TestLet(unittest.TestCase):
                 """'(1 2 3)"""
             ), self.base_env))
 
+    def test_let_over_lambda(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """(let ((make-counter (lambda (y)
+                                         (let ((x y))
+                                           (lambda ()
+                                             x)))))
+                     (let ((c1 (make-counter 1))
+                           (c2 (make-counter 2)))
+                       (list (c1) (c1) (c2) (c2))))"""),
+                self.base_env),
+            visp.evaluate(visp.read(
+                """'(1 1 2 2)"""
+            ), self.base_env))
+
+
 if __name__ == '__main__':
     unittest.main()

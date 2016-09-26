@@ -29,8 +29,8 @@ def evaluate(form, env):
     return form.eval(env)
 
 @accumulate(lambda bs: sum(bs, BaseEnv()))
-def match_let(ptrees, argss):
-    for ptree, args in zip(ptrees, argss):
+def match_let(ptrees, args_lists):
+    for ptree, args in zip(ptrees, args_lists):
         yield match(ptree, args)
 
 def match(ptree, args):
@@ -53,11 +53,11 @@ def cadr(x):
 
 def apply(combiner, operands, env):
     if isinstance(combiner, Let):
-        binds, body = tuple(from_cons(operands))
-        ptrees = map(car, from_cons(binds))
-        forms = map(cadr, from_cons(binds))
-        argss = (evaluate(form, env) for form in forms)
-        bindings = match_let(ptrees, argss)
+        binding_pairs, body = tuple(from_cons(operands))
+        ptrees = map(car, from_cons(binding_pairs))
+        forms = map(cadr, from_cons(binding_pairs))
+        args_lists = [evaluate(form, env) for form in forms]
+        bindings = match_let(ptrees, args_lists)
         return evaluate(body, bindings + env)
     if isinstance(combiner, Procedure):
         args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
