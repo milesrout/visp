@@ -1,24 +1,24 @@
 import itertools
 from datatypes import (cons, from_cons, to_cons, ignore, nil,
-        Cons, Exact, Inexact, Symbol, Procedure)
+        Cons, Exact, Inexact, Symbol)
 from lex import lex
 from reader import read
 from env import BaseEnv
-from util import accumulate
+from util import accumulate, constructor
 
 class Env(BaseEnv):
     def __init__(self, bindings=None):
         self.bindings = {
             # syntactic forms
-            'let': Let(),
-            'lambda': Lambda(),
-            'quote': Quote(),
-            'exact-number': ExactNum(),
-            'inexact-number': InexactNum(),
+            'let': syntaxLet,
+            'lambda': syntaxLambda,
+            'quote': syntaxQuote,
+            'exact-number': syntaxExact,
+            'inexact-number': syntaxInexact,
             # primitive functions
-            'list': PrimList(),
-            '+': PrimPlus(),
-            '-': PrimMinus(),
+            'list': primList,
+            '+': primPlus,
+            '-': primMinus,
         }
         if bindings is not None:
             self.bindings.update(bindings)
@@ -52,49 +52,57 @@ def cadr(x):
     return x.cdr.car
 
 def apply(combiner, operands, env):
-    if isinstance(combiner, Let):
-        binding_pairs, body = tuple(from_cons(operands))
-        ptrees = map(car, from_cons(binding_pairs))
-        forms = map(cadr, from_cons(binding_pairs))
-        args_lists = [evaluate(form, env) for form in forms]
-        bindings = match_let(ptrees, args_lists)
-        return evaluate(body, bindings + env)
-    if isinstance(combiner, Procedure):
-        args = to_cons(evaluate(obj, env) for obj in from_cons(operands))
-        bindings = match(combiner.ptree, args) + combiner.env
-        return evaluate(combiner.body, bindings)
-    if isinstance(combiner, Lambda):
-        ptree, body = tuple(from_cons(operands))
-        return Procedure(ptree=ptree, body=body, env=env)
-    if isinstance(combiner, PrimPlus):
-        l = evaluate(operands.car, env)
-        r = evaluate(operands.cdr.car, env)
-        if isinstance(l, Exact) and isinstance(r, Exact):
-            return Exact(l.value + r.value)
-        else:
-            return Inexact(l.value + r.value)
-    if isinstance(combiner, PrimMinus):
-        l = evaluate(operands.car, env)
-        r = evaluate(operands.cdr.car, env)
-        if isinstance(l, Exact) and isinstance(r, Exact):
-            return Exact(l.value - r.value)
-        else:
-            return Inexact(l.value - r.value)
-    if isinstance(combiner, PrimList):
-        return to_cons(evaluate(form, env) for form in from_cons(operands))
-    if isinstance(combiner, Quote):
-        return operands.car
-    if isinstance(combiner, ExactNum):
-        return operands.car
-    if isinstance(combiner, InexactNum):
-        return Inexact(operands.car.value)
-    raise RuntimeError('Unrecognised combiner {!r}'.format(combiner))
+    try:
+        return combiner(operands, env)
+    except Exception as exc:
+        raise RuntimeError('Unknown combiner {!r}'.format(combiner)) from exc
 
-class Lambda: pass
-class Quote: pass
-class ExactNum: pass
-class InexactNum: pass
-class Let: pass
-class PrimPlus: pass
-class PrimMinus: pass
-class PrimList: pass
+class Procedure:
+    @constructor
+    def __init__(self, ptree, body, env):
+        pass
+
+    def apply(self, operands, env):
+        args = to_cons(evaluate(form, env) for form in from_cons(operands))
+        bindings = match(self.ptree, args) + self.env
+        return evaluate(self.body, bindings)
+
+def syntaxLambda(operands, env):
+    ptree, body = tuple(from_cons(operands))
+    return Procedure(ptree, body, env).apply
+
+def syntaxQuote(operands, env):
+    return operands.car
+
+def syntaxExact(operands, env):
+    return operands.car
+
+def syntaxInexact(operands, env):
+    return Inexact(operands.car.value)
+
+def syntaxLet(operands, env):
+    binding_pairs, body = tuple(from_cons(operands))
+    ptrees = map(car, from_cons(binding_pairs))
+    forms = map(cadr, from_cons(binding_pairs))
+    args_lists = [evaluate(form, env) for form in forms]
+    bindings = match_let(ptrees, args_lists)
+    return evaluate(body, bindings + env)
+
+def primPlus(operands, env):
+    l = evaluate(operands.car, env)
+    r = evaluate(operands.cdr.car, env)
+    if isinstance(l, Exact) and isinstance(r, Exact):
+        return Exact(l.value + r.value)
+    else:
+        return Inexact(l.value + r.value)
+
+def primMinus(operands, env):
+    l = evaluate(operands.car, env)
+    r = evaluate(operands.cdr.car, env)
+    if isinstance(l, Exact) and isinstance(r, Exact):
+        return Exact(l.value - r.value)
+    else:
+        return Inexact(l.value - r.value)
+
+def primList(operands, env):
+    return to_cons(evaluate(form, env) for form in from_cons(operands))

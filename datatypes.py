@@ -1,7 +1,5 @@
 from collections import namedtuple
 
-Procedure = namedtuple('Procedure', 'ptree body env')
-
 class Symbol:
     def __init__(self, name):
         self.name = name
