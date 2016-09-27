@@ -1,11 +1,11 @@
 import itertools
 import operator
-from datatypes import (cons, from_cons, to_cons, ignore, nil,
+from datatypes import (cons, from_cons, to_cons, ignore, nil, true, false,
         Cons, Exact, Inexact, Symbol)
 from lex import lex
 from reader import read
 from env import BaseEnv
-from util import accumulate, constructor
+from util import accumulate, constructor, last
 
 class Env(BaseEnv):
     def __init__(self, bindings=None):
@@ -17,6 +17,7 @@ class Env(BaseEnv):
             'exact-number': syntaxExact,
             'inexact-number': syntaxInexact,
             'set!': syntaxSetBang,
+            'if': syntaxIf,
             # primitive functions
             'list': primList,
             '+': primPlus,
@@ -33,11 +34,10 @@ def evaluate(form, env):
         return apply(evaluate(form.car, env), form.cdr, env)
     return form.eval(env)
 
+@accumulate(last)
 def evaluate_seq(body, env):
-    ret = None
     for form in from_cons(body):
-        ret = evaluate(form, env)
-    return ret
+        yield evaluate(form, env)
 
 @accumulate(lambda bs: sum(bs, BaseEnv()))
 def match_let(ptrees, args_lists):
@@ -104,6 +104,16 @@ def syntaxLet(operands, env):
     args_lists = [evaluate(form, env) for form in forms]
     bindings = match_let(ptrees, args_lists)
     return evaluate_seq(body, bindings + env)
+
+def syntaxIf(operands, env):
+    condform = operands.car
+    trueform = operands.cdr.car
+    falseform = operands.cdr.cdr.car
+    # if truthy(evaluate(condform, env)):
+    if evaluate(condform, env) is true:
+        return evaluate(trueform, env)
+    else:
+        return evaluate(falseform, env)
 
 def primArithmetic(operands, env, arith):
     l = evaluate(operands.car, env)

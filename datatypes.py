@@ -1,5 +1,35 @@
 from collections import namedtuple
 
+class Boolean:
+    def __new__(cls, v):
+        if v is True:
+            return true
+        else:
+            return false
+    def __init__(self, v):
+        self.v = v
+    def eval(self, env):
+        return self
+    def __eq__(self, other):
+        return self is other
+    def __repr__(self):
+        return 'Boolean({!r})'.format(self.v)
+
+class TrueType(Boolean):
+    def __new__(cls, v):
+        return object.__new__(cls)
+    def __str__(self):
+        return '#t'
+
+class FalseType(Boolean):
+    def __new__(cls, v):
+        return object.__new__(cls)
+    def __str__(self):
+        return '#f'
+
+true = TrueType(True)
+false = FalseType(False)
+
 class Symbol:
     def __init__(self, name):
         self.name = name

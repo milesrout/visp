@@ -1,4 +1,5 @@
-from datatypes import cons, nil, Exact, Symbol, String, make_list, make_dotted
+from datatypes import (cons, nil, true, false,
+        Exact, Symbol, String, make_list, make_dotted)
 from lex import lex
 
 def read(string):
@@ -12,6 +13,8 @@ class Reader:
         self.reader_macros = {
             'e': self.rm_exact,
             'i': self.rm_inexact,
+            't': self.rm_true,
+            'f': self.rm_false,
         }
 
     def get_token(self):
@@ -102,3 +105,11 @@ class Reader:
         return make_list((
             Symbol('inexact-number'),
             self.expression()))
+
+    def rm_true(self):
+        self.next_token()
+        return true
+
+    def rm_false(self):
+        self.next_token()
+        return false

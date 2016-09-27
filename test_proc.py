@@ -50,5 +50,25 @@ class TestProc(test_visp.TestCase):
                   2))""",
             "2")
 
+    def test_let_over_lambda_over_let_over_lambda(self):
+        self.assertEvalEqual(
+            """(let (((new rev)
+                      (let ((reversed #f))
+                        (list
+                          (lambda (start)
+                            (let ((x start))
+                              (lambda ()
+                                (if reversed
+                                  (set! x (- x 1))
+                                  (set! x (+ x 1)))
+                                x)))
+                          (lambda ()
+                            (if reversed
+                              (set! reversed #f)
+                              (set! reversed #t)))))))
+                 (let ((c (new 0)))
+                   (list (c) (c) (rev) (c) (c))))""",
+            """'(1 2 () 1 0)""")
+
 if __name__ == '__main__':
     unittest.main()

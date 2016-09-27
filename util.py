@@ -1,5 +1,10 @@
 import functools, inspect, sys
 
+def last(iterable):
+    for x in iterable:
+        pass
+    return x
+
 def constructor(__init__):
     @functools.wraps(__init__)
     def new_init(self, *args, **kwds):
@@ -15,7 +20,7 @@ def accumulate(accum_type):
     def outer_wrapper(f):
         @functools.wraps(f)
         def inner_wrapper(*args, **kwds):
-            return accum_type(iter(f(*args, **kwds)))
+            return accum_type(f(*args, **kwds))
         return inner_wrapper
     return outer_wrapper
 
