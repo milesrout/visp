@@ -4,7 +4,7 @@ from datatypes import (cons, from_cons, to_cons, ignore, nil,
         Cons, Exact, Inexact, Symbol)
 from lex import lex
 from reader import read
-from env import BaseEnv
+from env import BaseEnv, ConstCell
 from util import accumulate, constructor
 
 class Env(BaseEnv):
@@ -12,6 +12,7 @@ class Env(BaseEnv):
         super().__init__({
             # syntactic forms
             'let': syntaxLet,
+            'let-const': syntaxLetConst,
             'lambda': syntaxLambda,
             'quote': syntaxQuote,
             'exact-number': syntaxExact,
@@ -38,17 +39,25 @@ def evaluate_seq(body, env):
     for form in from_cons(body):
         ret = evaluate(form, env)
     return ret
+        
+@accumulate(lambda bs: sum(bs, BaseEnv()))
+def match_let_const(ptrees, args_lists):
+    for ptree, args in zip(ptrees, args_lists):
+        yield match(ptree, args, const=True)
 
 @accumulate(lambda bs: sum(bs, BaseEnv()))
 def match_let(ptrees, args_lists):
     for ptree, args in zip(ptrees, args_lists):
         yield match(ptree, args)
 
-def match(ptree, args):
+def match(ptree, args, const=False):
     if ptree == nil or ptree == ignore:
         return BaseEnv()
     if isinstance(ptree, Symbol):
-        return BaseEnv({ ptree.name: args })
+        if const:
+            return ConstEnv({ ptree.name: args })
+        else:
+            return BaseEnv({ ptree.name: args })
     if isinstance(ptree, Cons):
         return match(ptree.car, args.car) + match(ptree.cdr, args.cdr)
     raise NotImplementedError(
@@ -96,7 +105,7 @@ def syntaxExact(operands, env):
 def syntaxInexact(operands, env):
     return Inexact(operands.car.value)
 
-def syntaxLet(operands, env):
+def syntaxLetHelper(operands, env, match_let):
     binding_pairs = operands.car
     body = operands.cdr
     ptrees = map(car, from_cons(binding_pairs))
@@ -104,6 +113,12 @@ def syntaxLet(operands, env):
     args_lists = [evaluate(form, env) for form in forms]
     bindings = match_let(ptrees, args_lists)
     return evaluate_seq(body, bindings + env)
+
+def syntaxLet(operands, env):
+    return syntaxLetHelper(operands, env, match_let)
+
+def syntaxLetConst(operands, env):
+    return syntaxLetHelper(operands, env, match_let_const)
 
 def primArithmetic(operands, env, arith):
     l = evaluate(operands.car, env)
