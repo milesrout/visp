@@ -3,6 +3,10 @@
 Without Cell, (set! k v) would only set a value for the remainder of the
 current scope."""
 
+import collections
+import operator
+from util import accumulate
+
 class Cell:
     def __init__(self, value):
         self.value = value
@@ -13,27 +17,22 @@ class Cell:
     def set(self, value):
         self.value = value
 
+@accumulate(dict)
+def cells(bindings):
+    if bindings is None: return {}
+    yield from ((k, cell(v)) for k, v in bindings.items())
+
+def cell(v):
+    if isinstance(v, Cell):
+        return v
+    return Cell(v)
+
 class BaseEnv:
-    # the mutable default value is fine because we don't mutate it
-    # never directly use or mutate this default!
-    def __init__(self, bindings={}):
-        self.bindings = {}
-        for k, v in bindings.items():
-            if isinstance(v, Cell):
-                self.bindings[k] = v
-            else:
-                self.bindings[k] = Cell(v)
+    def __init__(self, bindings=None):
+        self.bindings = cells(bindings)
 
     def add(self, name, value=None):
-        """Add a new entry to the environment
-        
-        If we add a Cell to the environment, just insert it
-        into the bindings. If we add something else, wrap it in a
-        Cell so that it can be mutated later."""
-        if isinstance(value, Cell):
-            self.bindings[name] = value
-        else:
-            self.bindings[name] = Cell(value)
+        self.bindings[name] = cell(value)
 
     def lookup(self, name):
         return self.bindings[name].get()
@@ -42,12 +41,13 @@ class BaseEnv:
         self.bindings[name].set(value)
 
     def __add__(self, other):
-        new_bindings = {}
-        for k, v in other.bindings.items():
-            new_bindings[k] = v
-        for k, v in self.bindings.items():
-            new_bindings[k] = v
-        return BaseEnv(new_bindings)
+        return BaseEnv(collections.ChainMap(
+            self.bindings, other.bindings))
 
     def __radd__(self, other):
         return self + other
+
+    @accumulate('\n'.join)
+    def to_string(self):
+        for k, v in sorted(self.bindings.items(), key=operator.itemgetter(0)):
+            yield '{:15} = {}'.format(k, v.get())

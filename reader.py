@@ -1,10 +1,15 @@
 from datatypes import (cons, nil, true, false,
-        Exact, Symbol, String, make_list, make_dotted)
+        Exact, Symbol, String,
+        make_list, make_dotted, from_cons)
 from lex import lex
 
 def read(string):
     r = Reader(string)
     return r.expression()
+
+def read_many(string):
+    r = Reader(string)
+    return from_cons(r.expressions())
 
 class Reader:
     def __init__(self, string):

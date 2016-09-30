@@ -46,6 +46,8 @@ class Symbol:
         return env.lookup(self.name)
     def set(self, env, value):
         return env.set(self.name, value)
+    def add(self, env, value):
+        return env.add(self.name, value)
 
 class String:
     def __init__(self, string):

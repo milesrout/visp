@@ -5,22 +5,21 @@ import test_visp
 from datatypes import Inexact, Exact
 
 class TestEval(test_visp.TestCase):
-    def setUp(self):
-        self.base_env = visp.Env({
-            'a': visp.Exact(2)
-        })
-
     def test_number(self):
-        self.assertEqual(visp.evaluate(visp.read("1"), self.base_env), 1)
+        self.assertEqual(
+            visp.evaluate(visp.read("1"), visp.Env()),
+            1)
 
     def test_symbol(self):
-        self.assertEvalEqual("a", "2")
+        self.assertEqual(
+            visp.evaluate(visp.read("a"), visp.Env({ 'a': 2 })),
+            2)
 
     def test_quote(self):
         self.assertEqual(
             visp.evaluate(visp.read(
                     "'(1 2 3)"),
-                self.base_env).car,
+                visp.Env()).car,
             1)
 
     def test_viral_inexactness(self):
@@ -40,7 +39,7 @@ class TestEval(test_visp.TestCase):
         self.assertEqual(
             visp.evaluate(visp.read(
                 """(+ #i100 #i100)"""
-            ), self.base_env),
+            ), visp.Env()),
             200.0)
 
 if __name__ == '__main__':

@@ -8,8 +8,16 @@ class VispShell(cmd.Cmd):
     prompt = '> '
     env = None
 
+    def preloop(self):
+        with open('prelude.visp') as prelude:
+            for expr in visp.read_many(prelude.read()):
+                visp.evaluate(expr, self.env)
+
     def do_repr(self, line):
         self.default(line, to_string=repr)
+
+    def do_env(self, line):
+        print(self.env.to_string())
 
     def default(self, line, to_string=str):
         try:

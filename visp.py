@@ -1,15 +1,16 @@
+import collections
 import itertools
 import operator
 from datatypes import (cons, from_cons, to_cons, ignore, nil, true, false,
         Cons, Exact, Inexact, Symbol)
 from lex import lex
-from reader import read
+from reader import read, read_many
 from env import BaseEnv
 from util import accumulate, constructor, last
 
 class Env(BaseEnv):
-    def __init__(self, bindings=None):
-        super().__init__({
+    def __init__(self, bindings={}):
+        super().__init__(collections.ChainMap(bindings, {
             # syntactic forms
             'let': syntaxLet,
             'lambda': syntaxLambda,
@@ -18,16 +19,14 @@ class Env(BaseEnv):
             'inexact-number': syntaxInexact,
             'set!': syntaxSetBang,
             'if': syntaxIf,
+            'define': syntaxDefine,
             # primitive functions
             'list': primList,
             '+': primPlus,
             '-': primMinus,
             '*': primTimes,
             '/': primDivide,
-        })
-        if bindings is not None:
-            for k, v in bindings.items():
-                self.add(k, v)
+        }).new_child())
 
 def evaluate(form, env):
     if isinstance(form, Cons):
@@ -66,7 +65,8 @@ def apply(combiner, operands, env):
     try:
         return combiner(operands, env)
     except Exception as exc:
-        raise RuntimeError('Unknown combiner {!r}'.format(combiner)) from exc
+        raise RuntimeError('Error when attempting to apply combiner {!r}'
+                .format(combiner)) from exc
 
 class Procedure:
     @constructor
@@ -82,6 +82,12 @@ def syntaxSetBang(operands, env):
     var, form = tuple(from_cons(operands))
     result = evaluate(form, env)
     var.set(env, result)
+    return result
+
+def syntaxDefine(operands, env):
+    var, form = tuple(from_cons(operands))
+    result = evaluate(form, env)
+    var.add(env, result)
     return result
 
 def syntaxLambda(operands, env):
