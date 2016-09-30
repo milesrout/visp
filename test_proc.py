@@ -68,7 +68,7 @@ class TestProc(test_visp.TestCase):
                               (set! reversed #t)))))))
                  (let ((c (new 0)))
                    (list (c) (c) (rev) (c) (c))))""",
-            """'(1 2 () 1 0)""")
+            """'(1 2 #t 1 0)""")
 
 if __name__ == '__main__':
     unittest.main()

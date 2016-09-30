@@ -80,8 +80,9 @@ class Procedure:
 
 def syntaxSetBang(operands, env):
     var, form = tuple(from_cons(operands))
-    var.set(env, evaluate(form, env))
-    return nil
+    result = evaluate(form, env)
+    var.set(env, result)
+    return result
 
 def syntaxLambda(operands, env):
     ptree, body = operands.car, operands.cdr
