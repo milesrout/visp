@@ -9,9 +9,7 @@ class VispShell(cmd.Cmd):
     env = None
 
     def preloop(self):
-        with open('prelude.visp') as prelude:
-            for expr in visp.read_many(prelude.read()):
-                visp.evaluate(expr, self.env)
+        visp.load_prelude(self.env)
 
     def do_repr(self, line):
         self.default(line, to_string=repr)

@@ -16,3 +16,18 @@
 (define cddr
   (lambda (x)
     (cdr (cdr x))))
+
+(define map
+  (lambda (f list)
+    (if (null? list)
+      '()
+      (let (((x . xs) list))
+        (cons (f x) (map f xs))))))
+
+(define list*
+  (lambda args
+    (if (null? args)
+      '()
+      (if (null? (cdr args))
+        (car args)
+        (cons (car args) (list* (cdr args)))))))

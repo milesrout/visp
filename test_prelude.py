@@ -3,12 +3,6 @@ import visp
 import test_visp
 
 class TestPrelude(test_visp.TestCase):
-    def setUp(self):
-        super().setUp()
-        with open('prelude.visp') as prelude:
-            for expr in visp.read_many(prelude.read()):
-                visp.evaluate(expr, self.base_env)
-
     def test_car(self):
         self.assertEvalEqual(
             """(car '(1 2 3))""",
