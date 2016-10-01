@@ -53,14 +53,6 @@ def match(ptree, args):
     raise NotImplementedError(
             'Matching against tree not supported: {!r}'.format(ptree))
 
-def car(x):
-    """(car x)"""
-    return x.car
-
-def cadr(x):
-    """(cadr x) = (car (cdr x))"""
-    return x.cdr.car
-
 def apply(combiner, operands, env):
     try:
         return combiner(operands, env)
@@ -106,8 +98,8 @@ def syntaxInexact(operands, env):
 def syntaxLet(operands, env):
     binding_pairs = operands.car
     body = operands.cdr
-    ptrees = map(car, from_cons(binding_pairs))
-    forms = map(cadr, from_cons(binding_pairs))
+    ptrees = (x.car for x in from_cons(binding_pairs))
+    forms = (x.cdr.car for x in from_cons(binding_pairs))
     args_lists = [evaluate(form, env) for form in forms]
     bindings = match_let(ptrees, args_lists)
     return evaluate_seq(body, bindings + env)
