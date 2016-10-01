@@ -72,6 +72,8 @@ def match(ptree, args):
             'Matching against tree not supported: {!r}'.format(ptree))
 
 def apply(combiner, operands, env):
+    if isinstance(combiner, Macro):
+        return combiner.apply(operands, env)
     return combiner(operands, env)
 
 class Macro(namedtuple('Macro', 'ptree, body, env')):
@@ -111,14 +113,14 @@ def syntaxDefine(operands, env):
 
 def syntaxDefmacro(operands, env):
     var, ptree, *body = tuple(from_cons(operands))
-    macro = Macro(ptree, to_cons(body), env).apply
+    macro = Macro(ptree, to_cons(body), env)
     env.add(var.name, macro)
     return macro
 
 def syntaxMacroexpand(operands, env):
     macro_name = operands.car.car
     macro_args = operands.car.cdr
-    return macro_name.eval(env)(macro_args, env)
+    return macro_name.eval(env).expand(macro_args)
 
 def syntaxLambda(operands, env):
     ptree, body = operands.car, operands.cdr
