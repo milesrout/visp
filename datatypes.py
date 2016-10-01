@@ -73,6 +73,12 @@ class Inexact:
             return self.value == other.value
         else:
             return super().__eq__(other)
+    def __repr__(self):
+        return 'Inexact({!r})'.format(self.value)
+    def __str__(self):
+        return str(self.value)
+    def eval(self, env):
+        return self
 
 class Exact:
     def __init__(self, string):
