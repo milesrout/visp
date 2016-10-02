@@ -47,3 +47,8 @@ class TestPrelude(test_visp.TestCase):
         self.assertEvalEqual(
             "(cons 1 (cons 2 (cons 3 4)))",
             "'(1 2 3 . 4)")
+
+    def test_map(self):
+        self.assertEvalEqual(
+            "(map (lambda (x) (+ x 1)) '(1 2 3 4 5))",
+            "'(2 3 4 5 6)")
