@@ -5,10 +5,29 @@ import test_visp
 from datatypes import Inexact, Exact
 
 class TestEval(test_visp.TestCase):
-    def test_number(self):
+    def test_exact(self):
         self.assertEqual(
             visp.evaluate(visp.read("1"), visp.Env()),
             1)
+
+    def test_inexact(self):
+        self.assertEqual(
+            visp.evaluate(visp.read("#i10"), visp.Env()),
+            10.0)
+
+    def test_self_evaluation(self):
+        self.assertEqual(
+            visp.evaluate(visp.Exact(5), visp.Env()),
+            visp.Exact(5))
+        self.assertEqual(
+            visp.evaluate(visp.Inexact(6.0), visp.Env()),
+            visp.Inexact(6.0))
+        self.assertEqual(
+            visp.evaluate(visp.true, visp.Env()),
+            visp.true)
+        self.assertEqual(
+            visp.evaluate(visp.false, visp.Env()),
+            visp.false)
 
     def test_symbol(self):
         self.assertEqual(
@@ -34,13 +53,3 @@ class TestEval(test_visp.TestCase):
             self.assertTrue(isinstance(
                 visp.evaluate(visp.read(input_string), self.base_env),
                 expected_type))
-
-    def test_inexact(self):
-        self.assertEqual(
-            visp.evaluate(visp.read(
-                """(+ #i100 #i100)"""
-            ), visp.Env()),
-            200.0)
-
-if __name__ == '__main__':
-    unittest.main()

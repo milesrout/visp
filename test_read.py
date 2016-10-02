@@ -27,12 +27,12 @@ class TestRead(unittest.TestCase):
 
     def test_nested(self):
         self.assertEqual(
-            visp.read("((1 . 2) . (3 . 4)"),
+            visp.read("((1 . 2) . (3 . 4))"),
             visp.cons(visp.cons(1, 2), visp.cons(3, 4)))
 
     def test_list_of_pairs(self):
         self.assertEqual(
-            visp.read("((1 . 2) (3 . 4) (5 . 6)"),
+            visp.read("((1 . 2) (3 . 4) (5 . 6))"),
             visp.cons(visp.cons(1, 2), 
                 visp.cons(visp.cons(3, 4),
                     visp.cons(visp.cons(5, 6), visp.nil))))
@@ -62,5 +62,14 @@ class TestRead(unittest.TestCase):
             visp.read("#i100"),
             visp.read('(inexact-number 100)'))
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_unexpected_token(self):
+        with self.assertRaises(RuntimeError):
+            visp.read(")")
+
+    def test_unexpected_readermacro(self):
+        with self.assertRaises(RuntimeError):
+            visp.read("#oblong")
+
+    def test_unmet_token_requirement(self):
+        with self.assertRaises(StopIteration):
+            visp.read("(1 2")

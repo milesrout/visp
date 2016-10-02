@@ -15,6 +15,7 @@ class Reader:
     def __init__(self, string):
         self.tokens = lex(string)
         self.current_token = next(self.tokens)
+        self.at_last = False
         self.reader_macros = {
             'e': self.rm_exact,
             'i': self.rm_inexact,
@@ -37,7 +38,9 @@ class Reader:
         try:
             self.current_token = next(self.tokens)
         except StopIteration:
-            pass
+            if self.at_last:
+                raise
+            self.at_last = True
 
     def expression(self):
         tok = self.lookahead()
@@ -85,10 +88,11 @@ class Reader:
         while True:
             if self.lookahead().type == 'rparen':
                 return make_list(expressions)
-            if self.lookahead().type == 'dot':
+            elif self.lookahead().type == 'dot':
                 self.next_token()
                 return make_dotted(expressions, self.expression())
-            expressions.append(self.expression())
+            else:
+                expressions.append(self.expression())
 
     def symbol(self):
         return Symbol(self.get_token().string)

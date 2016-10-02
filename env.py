@@ -44,10 +44,7 @@ class BaseEnv:
         return BaseEnv(collections.ChainMap(
             self.bindings, other.bindings))
 
-    def __radd__(self, other):
-        return self + other
-
     @accumulate('\n'.join)
-    def to_string(self):
+    def to_string(self): # pragma: no cover
         for k, v in sorted(self.bindings.items(), key=operator.itemgetter(0)):
             yield '{:15} = {}'.format(k, v.get())

@@ -44,6 +44,3 @@ class TestMacro(test_visp.TestCase):
                 """(let ((x "hello"))
                      (print x)
                      x)"""))
-
-if __name__ == '__main__':
-    unittest.main()

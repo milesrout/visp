@@ -3,7 +3,7 @@ import functools
 import itertools
 import operator
 from datatypes import (cons, from_cons, to_cons, ignore, nil, true, false,
-        Cons, Exact, Inexact, Symbol)
+        Cons, Exact, Inexact, Symbol, Boolean, String)
 from lex import lex
 from reader import read, read_many
 from env import BaseEnv
@@ -68,7 +68,7 @@ def match(ptree, args):
         return BaseEnv({ ptree.name: args })
     if isinstance(ptree, Cons):
         return match(ptree.car, args.car) + match(ptree.cdr, args.cdr)
-    raise NotImplementedError(
+    raise NotImplementedError( # pragma: no cover
             'Matching against tree not supported: {!r}'.format(ptree))
 
 def apply(combiner, operands, env):
@@ -85,7 +85,7 @@ class Macro(namedtuple('Macro', 'ptree, body, env')):
         return evaluate_seq(self.body, bindings)
 
     @accumulate('\n'.join)
-    def to_string(self):
+    def to_string(self): # pragma: no cover
         for name in ['ptree', 'body', 'env']:
             yield '{} == {}'.format(name, getattr(self, name))
 
@@ -184,7 +184,8 @@ def primDivide(operands, env):
 def primList(operands, env):
     return to_cons(evaluate(form, env) for form in from_cons(operands))
 
-def primPrint(operands, env):
+# can't unit test I/O
+def primPrint(operands, env): # pragma: no cover
     print(*(evaluate(form, env) for form in from_cons(operands)))
 
 def primNullQ(operands, env):

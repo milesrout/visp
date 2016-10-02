@@ -45,6 +45,3 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(
             next(visp.lex('""')).string,
             '')
-
-if __name__ == '__main__':
-    unittest.main()

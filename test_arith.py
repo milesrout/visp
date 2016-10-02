@@ -39,5 +39,16 @@ class TestArith(test_visp.TestCase):
             "(/ 12 2 3)",
             "2")
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_inexact_add(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                """(+ #i100 #i100)"""
+            ), visp.Env()),
+            200.0)
+
+    def test_sub_mixed(self):
+        self.assertEqual(
+            visp.evaluate(visp.read(
+                "(- #i100 #e20 #e40 #e1)"
+            ), visp.Env()),
+            39.0)

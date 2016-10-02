@@ -76,7 +76,7 @@ class Inexact:
     def __repr__(self):
         return 'Inexact({!r})'.format(self.value)
     def __str__(self):
-        return str(self.value)
+        return '#i{}'.format(self.value)
     def eval(self, env):
         return self
 
@@ -93,7 +93,7 @@ class Exact:
     def __repr__(self):
         return 'Exact({!r})'.format(self.value)
     def __str__(self):
-        return str(self.value)
+        return '#e{}'.format(self.value)
     def eval(self, env):
         return self
 

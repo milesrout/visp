@@ -49,6 +49,3 @@ class TestSet(test_visp.TestCase):
                      (set! x 3)
                      y)))""",
             "2")
-
-if __name__ == '__main__':
-    unittest.main()

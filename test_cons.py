@@ -7,6 +7,3 @@ class TestCons(unittest.TestCase):
 
     def test_cdr(self):
         self.assertEqual(visp.cons(1, 2).cdr, 2)
-
-if __name__ == '__main__':
-    unittest.main()

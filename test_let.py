@@ -49,7 +49,3 @@ class TestLet(test_visp.TestCase):
                  (set! y 3)
                  (list x y))""",
             """(quote (2 3))""")
-
-
-if __name__ == '__main__':
-    unittest.main()
